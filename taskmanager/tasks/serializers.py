@@ -12,7 +12,7 @@ class TaskSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def get_is_overdue(self, obj):
-        if obj.deadline:
+        if obj.deadline and obj.status != 'DONE':
             deadline = obj.deadline
             now_time = timezone.now()
             if timezone.is_naive(deadline):
@@ -21,7 +21,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return False
 
     def get_is_urgent(self, obj):
-        if obj.deadline:
+        if obj.deadline and obj.status != 'DONE':
             seconds_left = (obj.deadline - timezone.now()).total_seconds()
             return 0 < seconds_left < 86400
         return False

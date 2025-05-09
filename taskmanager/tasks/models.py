@@ -3,6 +3,14 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 
+PRIORITY_MAPPING = {
+    'LOW': 1,
+    'MEDIUM': 2,
+    'HIGH': 3,
+    'CRITICAL': 4
+}
+
+
 class Task(models.Model):
     PRIORITY_CHOICES = [('CRITICAL', 'Critical'), ('HIGH', 'High'), ('MEDIUM', 'Medium'), ('LOW', 'Low')]
     STATUS_CHOICES = [('TODO', 'К выполнению'), ('IN_PROGRESS', 'В работе'), ('DONE', 'Завершено')]
@@ -20,8 +28,8 @@ class Task(models.Model):
     def update_status_flags(self):
         now = timezone.now()
         if self.deadline:
-            self.is_overdue = self.deadline < now
-            self.is_urgent = (self.deadline - now).total_seconds() < 86400
+            self.is_overdue = self.status != 'DONE' and self.deadline < now
+            self.is_urgent = self.status != 'DONE' and (self.deadline - now).total_seconds() < 86400
         else:
             self.is_overdue = False
             self.is_urgent = False
